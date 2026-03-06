@@ -1,34 +1,33 @@
 namespace DinBotIDE.BlockEditor
 {
     /// <summary>
-    /// Tipos de bloques disponibles en el IDE DinBot.
-    /// Organizados por categoría: Movimiento, Sensores, Control, Comunicación.
+    /// Todos los tipos de bloques disponibles en la paleta del IDE.
     /// </summary>
     public enum TipoBloque
     {
-        // ── Movimiento ──────────────────────────────
+        // ── Movimiento ──
         MoverAdelante,
         MoverAtras,
         GirarIzquierda,
         GirarDerecha,
         Detener,
 
-        // ── Sensores ────────────────────────────────
+        // ── Sensores ──
         SiCNY70Izquierdo,
         SiCNY70Derecho,
         SiChoque,
-        SiLDRBajo,
-        SiMicrofonoAlto,
-        SiIRRecibe,
+        SiLDR,
+        SiMicrofono,
+        SiIR,
 
-        // ── Control ─────────────────────────────────
+        // ── Control ──
         Repetir,
         RepetirSiempre,
         Si,
         Esperar,
 
-        // ── Comunicación ────────────────────────────
+        // ── Comunicación ──
         EnviarSerial,
-        LeerSerial
+        LeerSerial,
     }
 }
