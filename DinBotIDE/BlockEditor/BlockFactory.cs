@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -7,161 +6,104 @@ using System.Windows.Media;
 namespace DinBotIDE.BlockEditor
 {
     /// <summary>
-    /// Crea y gestiona los bloques visuales en el canvas.
+    /// Crea los botones de la paleta y los controles visuales de cada bloque.
     /// </summary>
     public static class BlockFactory
     {
-        private static readonly Dictionary<TipoBloque, BloqueDefinicion> _definiciones = new()
+        // Colores por categoría (inspirado en Scratch)
+        private static readonly Dictionary<string, string> ColoresGrupo = new()
         {
-            // Movimiento
-            [TipoBloque.MoverAdelante]   = new(TipoBloque.MoverAdelante,   CategoriaBloque.Movimiento,    "Mover adelante",   "#4CAF50", ["velocidad", "tiempo_ms"]),
-            [TipoBloque.MoverAtras]      = new(TipoBloque.MoverAtras,      CategoriaBloque.Movimiento,    "Mover atrás",      "#4CAF50", ["velocidad", "tiempo_ms"]),
-            [TipoBloque.GirarIzquierda]  = new(TipoBloque.GirarIzquierda,  CategoriaBloque.Movimiento,    "Girar izquierda",  "#66BB6A", ["velocidad", "tiempo_ms"]),
-            [TipoBloque.GirarDerecha]    = new(TipoBloque.GirarDerecha,    CategoriaBloque.Movimiento,    "Girar derecha",    "#66BB6A", ["velocidad", "tiempo_ms"]),
-            [TipoBloque.Detener]         = new(TipoBloque.Detener,         CategoriaBloque.Movimiento,    "Detener",          "#388E3C", []),
+            { "🚗 Movimiento", "#FF6600" },
+            { "👁️ Sensores",   "#2196F3" },
+            { "🔁 Control",    "#9C27B0" },
+            { "📡 Comunicación","#009688" },
+        };
 
-            // Sensores
-            [TipoBloque.SiCNY70Izq]     = new(TipoBloque.SiCNY70Izq,     CategoriaBloque.Sensor,        "Si CNY70 izq.",    "#2196F3", []),
-            [TipoBloque.SiCNY70Der]     = new(TipoBloque.SiCNY70Der,     CategoriaBloque.Sensor,        "Si CNY70 der.",    "#2196F3", []),
-            [TipoBloque.SiChoque]       = new(TipoBloque.SiChoque,       CategoriaBloque.Sensor,        "Si choque",        "#1976D2", []),
-            [TipoBloque.SiLDR]          = new(TipoBloque.SiLDR,          CategoriaBloque.Sensor,        "Si LDR",           "#1565C0", ["umbral"]),
-            [TipoBloque.SiMicrofono]    = new(TipoBloque.SiMicrofono,    CategoriaBloque.Sensor,        "Si micrófono",     "#0D47A1", ["umbral"]),
-            [TipoBloque.SiIR]           = new(TipoBloque.SiIR,           CategoriaBloque.Sensor,        "Si IR recibe",     "#42A5F5", ["codigo"]),
-
-            // Control
-            [TipoBloque.RepetirN]       = new(TipoBloque.RepetirN,       CategoriaBloque.Control,       "Repetir N veces",  "#FF9800", ["veces"]),
-            [TipoBloque.RepetirSiempre] = new(TipoBloque.RepetirSiempre, CategoriaBloque.Control,       "Repetir siempre",  "#F57C00", []),
-            [TipoBloque.SiSino]         = new(TipoBloque.SiSino,         CategoriaBloque.Control,       "Si / Sino",        "#EF6C00", ["condicion"]),
-            [TipoBloque.Esperar]        = new(TipoBloque.Esperar,        CategoriaBloque.Control,       "Esperar ms",       "#E65100", ["tiempo_ms"]),
-
-            // Comunicación
-            [TipoBloque.EnviarSerial]   = new(TipoBloque.EnviarSerial,   CategoriaBloque.Comunicacion,  "Enviar por serial","#9C27B0", ["mensaje"]),
-            [TipoBloque.LeerSerial]     = new(TipoBloque.LeerSerial,     CategoriaBloque.Comunicacion,  "Leer serial",      "#7B1FA2", []),
+        private static readonly Dictionary<TipoBloque, string> EtiquetasBloques = new()
+        {
+            { TipoBloque.MoverAdelante,      "▶ Mover adelante" },
+            { TipoBloque.MoverAtras,         "◀ Mover atrás" },
+            { TipoBloque.GirarIzquierda,     "↺ Girar izquierda" },
+            { TipoBloque.GirarDerecha,       "↻ Girar derecha" },
+            { TipoBloque.Detener,            "⏹ Detener" },
+            { TipoBloque.SiCNY70Izquierdo,   "Si CNY70 izquierdo" },
+            { TipoBloque.SiCNY70Derecho,     "Si CNY70 derecho" },
+            { TipoBloque.SiChoque,           "Si choque detectado" },
+            { TipoBloque.SiLDR,              "Si LDR < umbral" },
+            { TipoBloque.SiMicrofono,        "Si micrófono activo" },
+            { TipoBloque.SiIR,               "Si IR recibe código" },
+            { TipoBloque.Repetir,            "🔁 Repetir N veces" },
+            { TipoBloque.RepetirSiempre,     "♾ Repetir siempre" },
+            { TipoBloque.Si,                 "❓ Si / Sino" },
+            { TipoBloque.Esperar,            "⏱ Esperar ms" },
+            { TipoBloque.EnviarSerial,       "📤 Enviar serial" },
+            { TipoBloque.LeerSerial,         "📥 Leer serial" },
         };
 
         /// <summary>
-        /// Crea un bloque visual (Border+StackPanel) para el canvas.
+        /// Retorna los grupos de bloques para renderizar la paleta.
         /// </summary>
-        public static FrameworkElement CrearBloque(TipoBloque tipo)
+        public static List<(string Titulo, List<TipoBloque> Bloques)> GetGrupos() => new()
         {
-            var def = _definiciones[tipo];
-            var color = (Color)ColorConverter.ConvertFromString(def.ColorHex);
+            ("🚗 Movimiento", new() {
+                TipoBloque.MoverAdelante, TipoBloque.MoverAtras,
+                TipoBloque.GirarIzquierda, TipoBloque.GirarDerecha,
+                TipoBloque.Detener }),
 
-            var panel = new StackPanel { Orientation = Orientation.Vertical, Margin = new Thickness(6) };
+            ("👁️ Sensores", new() {
+                TipoBloque.SiCNY70Izquierdo, TipoBloque.SiCNY70Derecho,
+                TipoBloque.SiChoque, TipoBloque.SiLDR,
+                TipoBloque.SiMicrofono, TipoBloque.SiIR }),
 
-            // Etiqueta del bloque
-            panel.Children.Add(new TextBlock
-            {
-                Text       = def.Etiqueta,
-                Foreground = Brushes.White,
-                FontWeight = FontWeights.Bold,
-                FontSize   = 13
-            });
+            ("🔁 Control", new() {
+                TipoBloque.Repetir, TipoBloque.RepetirSiempre,
+                TipoBloque.Si, TipoBloque.Esperar }),
 
-            // Campos de parámetros
-            foreach (var param in def.Parametros)
-            {
-                var row = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 3, 0, 0) };
-                row.Children.Add(new TextBlock
-                {
-                    Text       = param + ": ",
-                    Foreground = Brushes.LightGray,
-                    FontSize   = 11,
-                    VerticalAlignment = VerticalAlignment.Center
-                });
-                row.Children.Add(new TextBox
-                {
-                    Width       = 60,
-                    Text        = "0",
-                    FontSize    = 11,
-                    Tag         = param,
-                    Background  = new SolidColorBrush(Color.FromArgb(80, 0, 0, 0)),
-                    Foreground  = Brushes.White,
-                    BorderBrush = Brushes.Gray
-                });
-                panel.Children.Add(row);
-            }
-
-            // Botón eliminar
-            var btnEliminar = new Button
-            {
-                Content    = "✕",
-                Width      = 18, Height  = 18,
-                FontSize   = 10,
-                Background = Brushes.Transparent,
-                Foreground = Brushes.LightGray,
-                BorderThickness = new Thickness(0),
-                HorizontalAlignment = HorizontalAlignment.Right,
-                Margin     = new Thickness(0, 4, 0, 0),
-                Cursor     = System.Windows.Input.Cursors.Hand,
-                Tag        = tipo
-            };
-
-            var border = new Border
-            {
-                Background      = new SolidColorBrush(color),
-                CornerRadius    = new CornerRadius(6),
-                Padding         = new Thickness(8),
-                MinWidth        = 160,
-                Child           = panel,
-                Tag             = tipo
-            };
-
-            btnEliminar.Click += (s, e) =>
-            {
-                if (VisualTreeHelper.GetParent(border) is Canvas canvas)
-                {
-                    canvas.Children.Remove(border);
-                    // Regenerar código desde la ventana principal
-                    if (Application.Current.MainWindow is MainWindow mw)
-                        mw.RegenerarCodigo();
-                }
-            };
-            panel.Children.Add(btnEliminar);
-
-            // Habilitar arrastre
-            BlockCanvas.HabilitarArrastre(border);
-
-            return border;
-        }
+            ("📡 Comunicación", new() {
+                TipoBloque.EnviarSerial, TipoBloque.LeerSerial }),
+        };
 
         /// <summary>
-        /// Extrae la lista ordenada de bloques del canvas (de arriba a abajo).
+        /// Crea el botón de paleta para arrastrar al canvas.
         /// </summary>
-        public static List<BloqueInstancia> ExtraerBloques(Canvas canvas)
+        public static Button CrearBotonPaleta(TipoBloque tipo)
         {
-            return canvas.Children
-                .OfType<FrameworkElement>()
-                .Where(el => el.Tag is TipoBloque)
-                .OrderBy(el => Canvas.GetTop(el))
-                .Select(el =>
-                {
-                    var tipo = (TipoBloque)el.Tag;
-                    var parametros = new Dictionary<string, string>();
-
-                    // Recorrer TextBox de parámetros
-                    foreach (var tb in FindTextBoxes(el))
-                        if (tb.Tag is string key)
-                            parametros[key] = tb.Text;
-
-                    return new BloqueInstancia(tipo, parametros);
-                })
-                .ToList();
-        }
-
-        private static IEnumerable<TextBox> FindTextBoxes(DependencyObject parent)
-        {
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            var color = ObtenerColorTipo(tipo);
+            return new Button
             {
-                var child = VisualTreeHelper.GetChild(parent, i);
-                if (child is TextBox tb) yield return tb;
-                foreach (var sub in FindTextBoxes(child)) yield return sub;
-            }
+                Content = EtiquetasBloques.TryGetValue(tipo, out var label) ? label : tipo.ToString(),
+                Tag = tipo,
+                Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)),
+                Foreground = Brushes.White,
+                FontSize = 12,
+                Padding = new Thickness(8, 5, 8, 5),
+                Margin = new Thickness(0, 2, 0, 2),
+                BorderThickness = new Thickness(0),
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ToolTip = $"Arrastrar al canvas: {label}",
+            };
         }
-    }
 
-    /// <summary>
-    /// Instancia concreta de un bloque con sus parámetros actuales.
-    /// </summary>
-    public record BloqueInstancia(TipoBloque Tipo, Dictionary<string, string> Parametros);
+        public static string ObtenerEtiqueta(TipoBloque tipo)
+            => EtiquetasBloques.TryGetValue(tipo, out var lbl) ? lbl : tipo.ToString();
+
+        public static string ObtenerColorTipo(TipoBloque tipo) => tipo switch
+        {
+            TipoBloque.MoverAdelante or TipoBloque.MoverAtras or
+            TipoBloque.GirarIzquierda or TipoBloque.GirarDerecha or
+            TipoBloque.Detener => "#FF6600",
+
+            TipoBloque.SiCNY70Izquierdo or TipoBloque.SiCNY70Derecho or
+            TipoBloque.SiChoque or TipoBloque.SiLDR or
+            TipoBloque.SiMicrofono or TipoBloque.SiIR => "#2196F3",
+
+            TipoBloque.Repetir or TipoBloque.RepetirSiempre or
+            TipoBloque.Si or TipoBloque.Esperar => "#9C27B0",
+
+            TipoBloque.EnviarSerial or TipoBloque.LeerSerial => "#009688",
+
+            _ => "#555555"
+        };
+    }
 }
