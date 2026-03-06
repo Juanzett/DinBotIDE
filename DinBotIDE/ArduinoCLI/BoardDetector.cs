@@ -1,30 +1,20 @@
-using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 
 namespace DinBotIDE.ArduinoCLI
 {
     /// <summary>
-    /// Detecta los puertos COM disponibles en el sistema.
-    /// En una versión futura puede usar 'arduino-cli board list' para identificar la placa.
+    /// Detecta los puertos COM disponibles en el sistema (donde puede estar conectado el DinBot).
     /// </summary>
     public class BoardDetector
     {
         /// <summary>
-        /// Devuelve los puertos COM disponibles en el sistema.
+        /// Retorna la lista de puertos seriales disponibles (ej: COM3, COM4).
         /// </summary>
-        public List<string> GetAvailablePorts()
+        public List<string> ObtenerPuertos()
         {
-            try
-            {
-                var puertos = new List<string>(SerialPort.GetPortNames());
-                puertos.Sort(StringComparer.OrdinalIgnoreCase);
-                return puertos;
-            }
-            catch
-            {
-                return new List<string>();
-            }
+            var puertos = new List<string>(SerialPort.GetPortNames());
+            return puertos;
         }
     }
 }
