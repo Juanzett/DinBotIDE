@@ -1,81 +1,37 @@
 # 🤖 DinBot IDE
 
-> IDE de escritorio en **C# WPF (.NET 8)** para programar el robot **DinBot v2.4** de RobotGroup Argentina.  
-> Reemplaza al sistema original **miniBloq** (abandonado ~2016).
+> IDE de escritorio en C# (WPF / .NET 8) para programar el robot **DinBot v2.4** de RobotGroup Argentina, en reemplazo del sistema original **miniBloq** (abandonado ~2016).
+
+![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)
+![WPF](https://img.shields.io/badge/UI-WPF-0078D7?logo=windows)
+![Arduino](https://img.shields.io/badge/Backend-arduino--cli-00979D?logo=arduino)
+![Estado](https://img.shields.io/badge/Estado-Fase%200%20Setup-orange)
 
 ---
 
 ## 📋 ¿Qué es DinBot IDE?
 
-DinBot IDE permite programar el robot DinBot v2.4 mediante **bloques visuales** (drag & drop), genera código **Arduino (.ino)** automáticamente, y compila/sube el firmware al robot via USB usando **arduino-cli** como backend.
+El IDE permite programar el robot DinBot mediante **bloques visuales** (drag & drop), genera código **Arduino (.ino)** automáticamente, y lo compila y sube al robot via USB usando **arduino-cli** como backend.
 
 ---
 
-## 🔧 Hardware Soportado
+## 🖥️ Requisitos del sistema
 
-- **DinBot v2.4** — Arduino Mega compatible (ATmega2560), fabricado por RobotGroup Argentina
-- **MatBot v1.0** — versión alternativa/simplificada del mismo sistema
+| Software | Versión | Link |
+|---|---|---|
+| Visual Studio Community | 2022 | [Descargar](https://visualstudio.microsoft.com/es/vs/community/) |
+| .NET SDK | 8.0+ | incluido en VS 2022 |
+| arduino-cli | última | [Instalar](https://arduino.github.io/arduino-cli/) |
+| Driver CH340 | — | buscar "CH340 driver Windows 10" |
 
----
-
-## 💻 Stack Tecnológico
-
-| Capa | Tecnología |
-|------|-----------|
-| Lenguaje / UI | C# + WPF (.NET 8) |
-| IDE de desarrollo | Visual Studio Community 2022 |
-| Backend compilación | arduino-cli |
-| Placa target | Arduino Mega (FQBN: `arduino:avr:mega`) |
-| Comunicación USB | CH340 (requiere driver) |
-| Librería robot | `mbq.h` (Multiplo/RobotGroup) |
-
----
-
-## 🗂️ Estructura del Proyecto
-
-```
-DinBotIDE/
-├── DinBotIDE.sln
-├── DinBotIDE/
-│   ├── App.xaml / App.xaml.cs
-│   ├── MainWindow.xaml / MainWindow.xaml.cs
-│   ├── BlockEditor/
-│   │   ├── BlockTypes.cs
-│   │   ├── BlockCanvas.cs
-│   │   ├── BlockRenderer.cs
-│   │   └── BlockConnection.cs
-│   ├── CodeGenerator/
-│   │   └── ArduinoCodeGenerator.cs
-│   ├── ArduinoCLI/
-│   │   ├── ArduinoRunner.cs
-│   │   └── BoardDetector.cs
-│   ├── SerialMonitor/
-│   │   └── SerialMonitor.cs
-│   └── Models/
-│       ├── RobotConfig.cs
-│       └── BlockProgram.cs
-└── docs/
-    └── DINBOT_IDE_PROJECT.md
-```
-
----
-
-## 🚀 Inicio Rápido
-
-### 1. Prerequisitos
-
-- [ ] [Visual Studio Community 2022](https://visualstudio.microsoft.com/es/vs/community/) — workload: `.NET desktop development`
-- [ ] [arduino-cli](https://arduino.github.io/arduino-cli/)
-- [ ] Driver CH340 (buscar "CH340 driver Windows 10")
-- [ ] [Git](https://git-scm.com)
-
-### 2. Instalar soporte Arduino AVR
-
+### Configurar arduino-cli (una sola vez)
 ```bash
 arduino-cli core install arduino:avr
 ```
 
-### 3. Clonar y abrir
+---
+
+## 🚀 Cómo empezar
 
 ```bash
 git clone https://github.com/Juanzett/DinBotIDE.git
@@ -83,75 +39,66 @@ cd DinBotIDE
 start DinBotIDE.sln
 ```
 
-### 4. Compilar y ejecutar
-
-Abrir `DinBotIDE.sln` en Visual Studio 2022 → **F5**
-
----
-
-## 🧱 Bloques del IDE (MVP)
-
-### Movimiento
-- `[Mover adelante]` velocidad / tiempo
-- `[Mover atrás]` velocidad / tiempo
-- `[Girar izquierda/derecha]` velocidad / ángulo
-- `[Detener]`
-
-### Sensores
-- `[Si CNY70 detecta línea]`
-- `[Si sensor de choque activado]`
-- `[Si LDR < umbral]`
-- `[Si micrófono > umbral]`
-- `[Si IR recibe código]`
-
-### Control
-- `[Repetir N veces]`
-- `[Repetir siempre]`
-- `[Si / sino]`
-- `[Esperar N ms]`
-
-### Comunicación
-- `[Enviar por serial]`
-- `[Leer serial]`
+1. Abrir `DinBotIDE.sln` en Visual Studio 2022
+2. Click derecho → **Restaurar paquetes NuGet**
+3. Presionar **F5** para compilar y ejecutar
 
 ---
 
-## 🎯 Fases del Proyecto
+## 🗂️ Estructura del proyecto
 
-| Fase | Estado | Descripción |
-|------|--------|-------------|
-| **Fase 0** | 🔄 En progreso | Setup del entorno |
-| **Fase 1** | ⏳ Pendiente | MVP: seguidor de línea, IR, sensores |
-| **Fase 2** | ⏳ Pendiente | Integración Android (pantalla, TTS, cámara) |
-| **Fase 3** | ⏳ Pendiente | IA, GPS, visión artificial, reconocimiento de voz |
-
----
-
-## 🔌 Comandos arduino-cli útiles
-
-```bash
-# Listar puertos disponibles
-arduino-cli board list
-
-# Compilar sketch
-arduino-cli compile --fqbn arduino:avr:mega sketch/sketch.ino
-
-# Subir al DinBot
-arduino-cli upload -p COM3 --fqbn arduino:avr:mega sketch/sketch.ino
-
-# Monitor serial
-arduino-cli monitor -p COM3 --config baudrate=115200
+```
+DinBotIDE/
+├── DinBotIDE.sln
+└── DinBotIDE/
+    ├── App.xaml / App.xaml.cs         ← Colores y estilos globales
+    ├── MainWindow.xaml / .cs          ← Ventana principal del IDE
+    ├── BlockEditor/
+    │   ├── BlockTypes.cs              ← Enum con los 17 tipos de bloques
+    │   ├── BlockFactory.cs            ← Paleta organizada por categorías
+    │   └── BloqueVisual.cs            ← Control drag & drop con parámetros
+    ├── CodeGenerator/
+    │   └── ArduinoCodeGenerator.cs    ← Bloques → código .ino
+    ├── ArduinoCLI/
+    │   ├── ArduinoRunner.cs           ← Compilar / subir via arduino-cli
+    │   └── BoardDetector.cs           ← Detectar puertos COM
+    ├── SerialMonitor/
+    │   └── SerialMonitor.cs           ← Monitor serial async (115200 baud)
+    └── Models/
+        ├── RobotConfig.cs             ← Config del robot activo
+        └── BlockProgram.cs            ← Modelo serializable del programa
 ```
 
 ---
 
-## 📚 Referencias
+## 🧱 Bloques disponibles (MVP)
 
-- [miniBloq (sistema original)](https://blog.minibloq.org)
-- [arduino-cli docs](https://arduino.github.io/arduino-cli)
-- [Multiplo (plataforma base)](http://multiplo.org)
-- [RobotGroup Argentina](http://robotgroup.com.ar)
+| Categoría | Bloques |
+|---|---|
+| 🟢 Movimiento | Adelante, Atrás, Girar izquierda, Girar derecha, Detener |
+| 🔵 Sensores | CNY70 izq/der, Choque, LDR, Micrófono, IR |
+| 🟠 Control | Repetir N, Repetir siempre, Si/Sino, Esperar |
+| 🟣 Comunicación | Enviar serial, Leer serial |
 
 ---
 
-*Proyecto en estado: **Fase 0 — Setup del entorno** | Última actualización: 2026-03-06*
+## 🔧 Hardware compatible
+
+- **DinBot v2.4** — Arduino Mega compatible (ATmega2560)
+- **FQBN:** `arduino:avr:mega`
+- **Conexión:** USB Mini-B → CH340
+- **Velocidad serial:** 115200 baud
+
+---
+
+## 🗺️ Roadmap
+
+- **Fase 1 (MVP):** Seguidor de línea, esquiva obstáculos, control IR, LDR, micrófono
+- **Fase 2:** Integración Android (pantalla, TTS, cámara, WiFi)
+- **Fase 3:** IA conversacional, GPS, visión artificial, voz offline
+
+---
+
+## 📜 Licencia
+
+MIT © 2026 — Juanzett
