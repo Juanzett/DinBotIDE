@@ -1,0 +1,209 @@
+<Window x:Class="DinBotIDE.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="DinBot IDE v0.1 — RobotGroup Argentina"
+        Height="720" Width="1280"
+        MinHeight="600" MinWidth="900"
+        Background="{StaticResource BrushDark}"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <!-- Toolbar -->
+            <RowDefinition Height="50"/>
+            <!-- Main content -->
+            <RowDefinition Height="*"/>
+            <!-- Status bar -->
+            <RowDefinition Height="28"/>
+        </Grid.RowDefinitions>
+
+        <!-- ═══════════════════ TOOLBAR ═══════════════════ -->
+        <Border Grid.Row="0" Background="{StaticResource BrushAccent}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+
+                <!-- Logo / Título -->
+                <TextBlock Text="🤖 DinBot IDE"
+                           Foreground="{StaticResource BrushOrange}"
+                           FontSize="18" FontWeight="Bold"
+                           VerticalAlignment="Center" Margin="0,0,20,0"/>
+
+                <!-- Botón Compilar -->
+                <Button x:Name="BtnCompilar"
+                        Content="▶ Compilar"
+                        Style="{StaticResource DinBotButton}"
+                        Margin="4,0" Click="BtnCompilar_Click"/>
+
+                <!-- Botón Subir -->
+                <Button x:Name="BtnSubir"
+                        Content="⬆ Subir al Robot"
+                        Style="{StaticResource DinBotButton}"
+                        Margin="4,0" Click="BtnSubir_Click"
+                        IsEnabled="False"/>
+
+                <!-- Separador -->
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"
+                           Margin="8,4" Background="#444"/>
+
+                <!-- Selector de puerto -->
+                <TextBlock Text="Puerto:" Foreground="{StaticResource BrushTextDim}"
+                           VerticalAlignment="Center" Margin="0,0,6,0"/>
+                <ComboBox x:Name="CboPuerto" Width="110" Margin="0,0,4,0"
+                          Background="{StaticResource BrushMid}"
+                          Foreground="White"/>
+                <Button Content="↻" ToolTip="Actualizar puertos"
+                        Style="{StaticResource DinBotButton}"
+                        Width="32" Margin="0,0,8,0"
+                        Click="BtnRefreshPuertos_Click"/>
+
+                <!-- Botón Nuevo / Guardar / Abrir -->
+                <Button Content="📄 Nuevo" Style="{StaticResource DinBotButton}"
+                        Margin="4,0" Click="BtnNuevo_Click"/>
+                <Button Content="💾 Guardar" Style="{StaticResource DinBotButton}"
+                        Margin="4,0" Click="BtnGuardar_Click"/>
+                <Button Content="📂 Abrir" Style="{StaticResource DinBotButton}"
+                        Margin="4,0" Click="BtnAbrir_Click"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══════════════════ CONTENIDO PRINCIPAL ═══════════════════ -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <!-- Panel de bloques (paleta) -->
+                <ColumnDefinition Width="200" MinWidth="150"/>
+                <ColumnDefinition Width="5"/>
+                <!-- Canvas de programación -->
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <!-- Panel derecho: código + serial -->
+                <ColumnDefinition Width="320" MinWidth="200"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ── PANEL IZQUIERDO: Paleta de bloques ── -->
+            <Border Grid.Column="0" Background="{StaticResource BrushMid}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top"
+                               Text="BLOQUES"
+                               Foreground="{StaticResource BrushOrange}"
+                               FontWeight="Bold" FontSize="12"
+                               Padding="10,8" Background="{StaticResource BrushAccent}"/>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="PanelBloques" Margin="8"/>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- Splitter izquierdo -->
+            <GridSplitter Grid.Column="1" Width="5"
+                          Background="#333" ResizeBehavior="PreviousAndNext"/>
+
+            <!-- ── PANEL CENTRAL: Canvas de bloques ── -->
+            <Border Grid.Column="2" Background="#0D1117">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top"
+                               Text="PROGRAMA"
+                               Foreground="{StaticResource BrushOrange}"
+                               FontWeight="Bold" FontSize="12"
+                               Padding="10,8" Background="{StaticResource BrushAccent}"/>
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Auto">
+                        <Canvas x:Name="CanvasBloques"
+                                Background="#0D1117"
+                                Width="2000" Height="2000"
+                                AllowDrop="True"
+                                Drop="CanvasBloques_Drop"
+                                DragOver="CanvasBloques_DragOver"/>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- Splitter derecho -->
+            <GridSplitter Grid.Column="3" Width="5"
+                          Background="#333" ResizeBehavior="PreviousAndNext"/>
+
+            <!-- ── PANEL DERECHO: Código generado + Monitor serial ── -->
+            <Grid Grid.Column="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="200"/>
+                </Grid.RowDefinitions>
+
+                <!-- Código Arduino generado -->
+                <Border Grid.Row="0" Background="{StaticResource BrushMid}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top"
+                                   Text="CÓDIGO ARDUINO"
+                                   Foreground="{StaticResource BrushOrange}"
+                                   FontWeight="Bold" FontSize="12"
+                                   Padding="10,8" Background="{StaticResource BrushAccent}"/>
+                        <TextBox x:Name="TxtCodigo"
+                                 Background="#0D1117"
+                                 Foreground="#A8FF78"
+                                 FontFamily="Consolas" FontSize="12"
+                                 IsReadOnly="True"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Auto"
+                                 HorizontalScrollBarVisibility="Auto"
+                                 BorderThickness="0"
+                                 Padding="8"/>
+                    </DockPanel>
+                </Border>
+
+                <!-- Splitter vertical -->
+                <GridSplitter Grid.Row="1" Height="5"
+                              HorizontalAlignment="Stretch"
+                              Background="#333"/>
+
+                <!-- Monitor Serial -->
+                <Border Grid.Row="2" Background="{StaticResource BrushMid}">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal"
+                                    Background="{StaticResource BrushAccent}">
+                            <TextBlock Text="MONITOR SERIAL"
+                                       Foreground="{StaticResource BrushOrange}"
+                                       FontWeight="Bold" FontSize="12"
+                                       Padding="10,8" VerticalAlignment="Center"/>
+                            <Button Content="Conectar"
+                                    Style="{StaticResource DinBotButton}"
+                                    FontSize="11" Padding="8,3"
+                                    Margin="4,4" Click="BtnConectarSerial_Click"/>
+                            <Button Content="Limpiar"
+                                    Style="{StaticResource DinBotButton}"
+                                    FontSize="11" Padding="8,3"
+                                    Margin="4,4" Click="BtnLimpiarSerial_Click"/>
+                        </StackPanel>
+                        <TextBox x:Name="TxtSerial"
+                                 Background="#0A0A0A"
+                                 Foreground="#00FF88"
+                                 FontFamily="Consolas" FontSize="11"
+                                 IsReadOnly="True"
+                                 AcceptsReturn="True"
+                                 VerticalScrollBarVisibility="Auto"
+                                 BorderThickness="0"
+                                 Padding="8"/>
+                    </DockPanel>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- ═══════════════════ STATUS BAR ═══════════════════ -->
+        <Border Grid.Row="2" Background="{StaticResource BrushAccent}">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                <TextBlock x:Name="TxtStatus"
+                           Text="✅ Listo"
+                           Foreground="{StaticResource BrushGreen}"
+                           FontSize="12"/>
+                <TextBlock Text="  |  " Foreground="#444"/>
+                <TextBlock x:Name="TxtBloques"
+                           Text="Bloques: 0"
+                           Foreground="{StaticResource BrushTextDim}"
+                           FontSize="12"/>
+                <TextBlock Text="  |  " Foreground="#444"/>
+                <TextBlock x:Name="TxtPuerto"
+                           Text="Sin conexión"
+                           Foreground="{StaticResource BrushTextDim}"
+                           FontSize="12"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
