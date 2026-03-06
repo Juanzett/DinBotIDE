@@ -3,39 +3,50 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!-- Paleta de colores DinBot -->
-        <Color x:Key="DinBotOrange">#FF6B2C</Color>
-        <Color x:Key="DinBotDark">#1A1A2E</Color>
-        <Color x:Key="DinBotMid">#16213E</Color>
-        <Color x:Key="DinBotAccent">#0F3460</Color>
-        <Color x:Key="DinBotGreen">#4CAF50</Color>
-        <Color x:Key="DinBotRed">#F44336</Color>
+        <ResourceDictionary>
+            <!-- Paleta de colores DinBot -->
+            <Color x:Key="ColorPrimario">#FF6600</Color>
+            <Color x:Key="ColorOscuro">#1E1E2E</Color>
+            <Color x:Key="ColorPanel">#252535</Color>
+            <Color x:Key="ColorBorde">#3A3A4A</Color>
+            <Color x:Key="ColorTexto">#F0F0F0</Color>
+            <Color x:Key="ColorAccento">#FF8C00</Color>
 
-        <SolidColorBrush x:Key="BrushOrange" Color="{StaticResource DinBotOrange}"/>
-        <SolidColorBrush x:Key="BrushDark" Color="{StaticResource DinBotDark}"/>
-        <SolidColorBrush x:Key="BrushMid" Color="{StaticResource DinBotMid}"/>
-        <SolidColorBrush x:Key="BrushAccent" Color="{StaticResource DinBotAccent}"/>
-        <SolidColorBrush x:Key="BrushGreen" Color="{StaticResource DinBotGreen}"/>
-        <SolidColorBrush x:Key="BrushRed" Color="{StaticResource DinBotRed}"/>
-        <SolidColorBrush x:Key="BrushText">#FFFFFF</SolidColorBrush>
-        <SolidColorBrush x:Key="BrushTextDim">#AAAAAA</SolidColorBrush>
+            <SolidColorBrush x:Key="BrushPrimario" Color="{StaticResource ColorPrimario}"/>
+            <SolidColorBrush x:Key="BrushOscuro" Color="{StaticResource ColorOscuro}"/>
+            <SolidColorBrush x:Key="BrushPanel" Color="{StaticResource ColorPanel}"/>
+            <SolidColorBrush x:Key="BrushBorde" Color="{StaticResource ColorBorde}"/>
+            <SolidColorBrush x:Key="BrushTexto" Color="{StaticResource ColorTexto}"/>
+            <SolidColorBrush x:Key="BrushAccento" Color="{StaticResource ColorAccento}"/>
 
-        <!-- Estilo base de botones -->
-        <Style TargetType="Button" x:Key="DinBotButton">
-            <Setter Property="Background" Value="{StaticResource BrushOrange}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="12,6"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Opacity" Value="0.85"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Opacity" Value="0.4"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+            <!-- Estilo base de botones -->
+            <Style x:Key="BotonDinBot" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource BrushPrimario}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Padding" Value="12,6"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="4"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource BrushAccento}"/>
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.5"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
