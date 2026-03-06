@@ -2,61 +2,130 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
+using DinBotIDE.CodeGenerator;
+using DinBotIDE.Models;
 
 namespace DinBotIDE.BlockEditor
 {
     /// <summary>
-    /// Lógica de drag & drop sobre el canvas principal de bloques.
+    /// Gestiona el canvas de programación: drag & drop, renderizado y extracción del programa.
     /// </summary>
-    public static class BlockCanvas
+    public class BlockCanvas
     {
-        private static UIElement? _elementoArrastrado;
-        private static Point _offsetArrastre;
+        private readonly Canvas    _canvas;
+        private readonly TextBox   _codeOutput;
+        private readonly TextBlock _blockCounter;
 
-        /// <summary>
-        /// Habilita el arrastre sobre un elemento del canvas.
-        /// </summary>
-        public static void HabilitarArrastre(UIElement elemento)
+        private BlockControl? _dragging;
+        private Point         _dragOffset;
+
+        private readonly List<BlockControl> _blocks = new();
+
+        public BlockCanvas(Canvas canvas, TextBox codeOutput, TextBlock blockCounter)
         {
-            elemento.MouseLeftButtonDown += Elemento_MouseLeftButtonDown;
-            elemento.MouseMove           += Elemento_MouseMove;
-            elemento.MouseLeftButtonUp   += Elemento_MouseLeftButtonUp;
+            _canvas       = canvas;
+            _codeOutput   = codeOutput;
+            _blockCounter = blockCounter;
         }
 
-        private static void Elemento_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        // ── Drag & Drop ────────────────────────────────────────────────
+
+        public void HandleDrop(DragEventArgs e)
         {
-            if (sender is UIElement el)
+            if (!e.Data.GetDataPresent("BlockType")) return;
+
+            var type = (BlockType)e.Data.GetData("BlockType");
+            var pos  = e.GetPosition(_canvas);
+
+            AddBlock(type, pos);
+        }
+
+        public void AddBlock(BlockType type, Point position)
+        {
+            var block = new BlockControl(type);
+            block.MouseLeftButtonDown += Block_MouseDown;
+            block.MouseLeftButtonUp   += Block_MouseUp;
+            block.MouseMove           += Block_MouseMove;
+            block.DeleteRequested     += () => RemoveBlock(block);
+
+            Canvas.SetLeft(block, position.X);
+            Canvas.SetTop(block, position.Y);
+
+            _canvas.Children.Add(block);
+            _blocks.Add(block);
+
+            RefreshCode();
+            UpdateCounter();
+        }
+
+        private void RemoveBlock(BlockControl block)
+        {
+            _canvas.Children.Remove(block);
+            _blocks.Remove(block);
+            RefreshCode();
+            UpdateCounter();
+        }
+
+        private void Block_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            _dragging   = (BlockControl)sender;
+            _dragOffset = e.GetPosition(_dragging);
+            _dragging.CaptureMouse();
+        }
+
+        private void Block_MouseUp(object sender, MouseButtonEventArgs e)
+        {
+            _dragging?.ReleaseMouseCapture();
+            _dragging = null;
+        }
+
+        private void Block_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_dragging is null || e.LeftButton != MouseButtonState.Pressed) return;
+
+            var pos = e.GetPosition(_canvas);
+            Canvas.SetLeft(_dragging, pos.X - _dragOffset.X);
+            Canvas.SetTop(_dragging, pos.Y - _dragOffset.Y);
+        }
+
+        // ── Programa ───────────────────────────────────────────────────
+
+        public BlockProgram GetProgram()
+        {
+            var items = _blocks
+                .OrderBy(b => Canvas.GetTop(b))
+                .Select(b => b.ToBlockItem())
+                .ToList();
+
+            return new BlockProgram { Blocks = items };
+        }
+
+        public void LoadProgram(BlockProgram program)
+        {
+            Clear();
+            double y = 20;
+            foreach (var item in program.Blocks)
             {
-                _elementoArrastrado = el;
-                var canvas = VisualTreeHelper.GetParent(el) as Canvas;
-                if (canvas is not null)
-                {
-                    _offsetArrastre = e.GetPosition(canvas);
-                    _offsetArrastre.X -= Canvas.GetLeft(el);
-                    _offsetArrastre.Y -= Canvas.GetTop(el);
-                    el.CaptureMouse();
-                }
+                AddBlock(item.Type, new Point(20, y));
+                y += 70;
             }
         }
 
-        private static void Elemento_MouseMove(object sender, MouseEventArgs e)
+        public void Clear()
         {
-            if (_elementoArrastrado is null || e.LeftButton != MouseButtonState.Pressed) return;
-            var canvas = VisualTreeHelper.GetParent(_elementoArrastrado) as Canvas;
-            if (canvas is null) return;
-
-            var pos = e.GetPosition(canvas);
-            double x = Math.Max(0, Math.Min(pos.X - _offsetArrastre.X, canvas.ActualWidth  - 20));
-            double y = Math.Max(0, Math.Min(pos.Y - _offsetArrastre.Y, canvas.ActualHeight - 20));
-
-            Canvas.SetLeft(_elementoArrastrado, x);
-            Canvas.SetTop(_elementoArrastrado,  y);
+            _canvas.Children.Clear();
+            _blocks.Clear();
+            _codeOutput.Text = string.Empty;
+            UpdateCounter();
         }
 
-        private static void Elemento_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            _elementoArrastrado?.ReleaseMouseCapture();
-            _elementoArrastrado = null;
-        }
+        // ── Helpers ────────────────────────────────────────────────────
+
+        private void RefreshCode()
+            => _codeOutput.Text = ArduinoCodeGenerator.Generate(GetProgram());
+
+        private void UpdateCounter()
+            => _blockCounter.Text = $"Bloques: {_blocks.Count}";
     }
 }
