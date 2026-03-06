@@ -3,19 +3,39 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!-- Paleta de colores DinBot IDE -->
-        <Color x:Key="PrimaryColor">#2D2D30</Color>
-        <Color x:Key="SecondaryColor">#3E3E42</Color>
-        <Color x:Key="AccentColor">#FF6B00</Color>
-        <Color x:Key="TextColor">#F1F1F1</Color>
-        <Color x:Key="BlockMoveColor">#4CAF50</Color>
-        <Color x:Key="BlockSensorColor">#2196F3</Color>
-        <Color x:Key="BlockControlColor">#FF9800</Color>
-        <Color x:Key="BlockSerialColor">#9C27B0</Color>
+        <!-- Paleta de colores DinBot -->
+        <Color x:Key="DinBotOrange">#FF6B2C</Color>
+        <Color x:Key="DinBotDark">#1A1A2E</Color>
+        <Color x:Key="DinBotMid">#16213E</Color>
+        <Color x:Key="DinBotAccent">#0F3460</Color>
+        <Color x:Key="DinBotGreen">#4CAF50</Color>
+        <Color x:Key="DinBotRed">#F44336</Color>
 
-        <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
-        <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
-        <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
-        <SolidColorBrush x:Key="TextBrush" Color="{StaticResource TextColor}"/>
+        <SolidColorBrush x:Key="BrushOrange" Color="{StaticResource DinBotOrange}"/>
+        <SolidColorBrush x:Key="BrushDark" Color="{StaticResource DinBotDark}"/>
+        <SolidColorBrush x:Key="BrushMid" Color="{StaticResource DinBotMid}"/>
+        <SolidColorBrush x:Key="BrushAccent" Color="{StaticResource DinBotAccent}"/>
+        <SolidColorBrush x:Key="BrushGreen" Color="{StaticResource DinBotGreen}"/>
+        <SolidColorBrush x:Key="BrushRed" Color="{StaticResource DinBotRed}"/>
+        <SolidColorBrush x:Key="BrushText">#FFFFFF</SolidColorBrush>
+        <SolidColorBrush x:Key="BrushTextDim">#AAAAAA</SolidColorBrush>
+
+        <!-- Estilo base de botones -->
+        <Style TargetType="Button" x:Key="DinBotButton">
+            <Setter Property="Background" Value="{StaticResource BrushOrange}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.85"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.4"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Application.Resources>
 </Application>
