@@ -24,10 +24,33 @@ namespace DinBotIDE.ArduinoCLI
         }
 
         /// <summary>
+        /// Verifica si arduino-cli está disponible en el sistema.
+        /// </summary>
+        public static async Task<(bool Disponible, string Mensaje)> VerificarInstalacionAsync()
+        {
+            try
+            {
+                var resultado = await EjecutarCLIAsync("version");
+                return (true, resultado);
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                return (false,
+                    "arduino-cli no está instalado o no está en el PATH.\n\n" +
+                    "Para instalar, abrí PowerShell como administrador y ejecutá:\n" +
+                    "  winget install Arduino.ArduinoCLI\n\n" +
+                    "Después ejecutá:\n" +
+                    "  arduino-cli core install arduino:avr\n\n" +
+                    "Reiniciá Visual Studio después de instalar.");
+            }
+        }
+
+        /// <summary>
         /// Guarda el código .ino en disco y lo compila con arduino-cli.
         /// </summary>
         public async Task<string> CompilarAsync(string codigoArduino)
         {
+            await VerificarOLanzar();
             await File.WriteAllTextAsync(_sketchFile, codigoArduino);
             return await EjecutarCLIAsync($"compile --fqbn {FQBN} \"{_sketchDir}\"");
         }
@@ -37,7 +60,15 @@ namespace DinBotIDE.ArduinoCLI
         /// </summary>
         public async Task<string> SubirAsync(string puerto)
         {
+            await VerificarOLanzar();
             return await EjecutarCLIAsync($"upload -p {puerto} --fqbn {FQBN} \"{_sketchDir}\"");
+        }
+
+        private static async Task VerificarOLanzar()
+        {
+            var (disponible, mensaje) = await VerificarInstalacionAsync();
+            if (!disponible)
+                throw new InvalidOperationException(mensaje);
         }
 
         private static async Task<string> EjecutarCLIAsync(string argumentos)

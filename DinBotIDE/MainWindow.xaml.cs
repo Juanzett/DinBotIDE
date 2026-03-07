@@ -65,6 +65,32 @@ namespace DinBotIDE
                     PanelPaleta.Children.Add(btn);
                 }
             }
+
+            // ── Botón de test rápido al final de la paleta ──
+            PanelPaleta.Children.Add(new TextBlock
+            {
+                Text = "🧪 Diagnóstico",
+                Foreground = System.Windows.Media.Brushes.White,
+                FontWeight = FontWeights.Bold,
+                FontSize = 13,
+                Margin = new Thickness(0, 16, 0, 4)
+            });
+
+            var btnTest = new Button
+            {
+                Content = "🔌 Test Eco Serial",
+                Background = new System.Windows.Media.SolidColorBrush(
+                    (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#4CAF50")),
+                Foreground = System.Windows.Media.Brushes.White,
+                FontSize = 12,
+                Padding = new Thickness(8, 5, 8, 5),
+                Margin = new Thickness(0, 2, 0, 2),
+                BorderThickness = new Thickness(0),
+                Cursor = Cursors.Hand,
+                ToolTip = "Genera un sketch de eco serial para verificar la comunicación con el DinBot"
+            };
+            btnTest.Click += TestEcoSerial_Click;
+            PanelPaleta.Children.Add(btnTest);
         }
 
         private void PaletaBtn_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -74,6 +100,55 @@ namespace DinBotIDE
                 var data = new DataObject("TipoBloque", tipo);
                 DragDrop.DoDragDrop(btn, data, DragDropEffects.Copy);
             }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  TEST DE COMUNICACIÓN
+        // ══════════════════════════════════════════════════════════════
+
+        private void TestEcoSerial_Click(object sender, RoutedEventArgs e)
+        {
+            TxtCodigoGenerado.Text = """
+                // ════════════════════════════════════════
+                // TEST: Eco Serial — DinBot IDE
+                // Sube este sketch y luego envía texto
+                // desde el Monitor Serial. El DinBot debe
+                // devolver exactamente lo que recibe.
+                // ════════════════════════════════════════
+
+                void setup() {
+                  Serial.begin(115200);
+                  pinMode(LED_BUILTIN, OUTPUT);
+
+                  // Parpadear LED 3 veces = test iniciado
+                  for (int i = 0; i < 3; i++) {
+                    digitalWrite(LED_BUILTIN, HIGH);
+                    delay(200);
+                    digitalWrite(LED_BUILTIN, LOW);
+                    delay(200);
+                  }
+
+                  Serial.println("DinBot listo! Eco serial activo.");
+                }
+
+                void loop() {
+                  if (Serial.available()) {
+                    String datos = Serial.readStringUntil('\n');
+                    datos.trim();
+
+                    // Eco: devolver lo recibido
+                    Serial.print("ECO: ");
+                    Serial.println(datos);
+
+                    // Parpadear LED al recibir dato
+                    digitalWrite(LED_BUILTIN, HIGH);
+                    delay(100);
+                    digitalWrite(LED_BUILTIN, LOW);
+                  }
+                }
+                """;
+
+            ActualizarEstado("Test eco serial cargado. Compilá y subí al DinBot.");
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -306,7 +381,6 @@ namespace DinBotIDE
             if (string.IsNullOrWhiteSpace(msg)) return;
 
             _serialMonitor.Enviar(msg);
-            TxtSalidaSerial.AppendText($">> {msg}\n");
             TxtEntradaSerial.Clear();
         }
 
