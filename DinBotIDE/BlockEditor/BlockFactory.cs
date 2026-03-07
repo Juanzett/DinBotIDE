@@ -10,15 +10,6 @@ namespace DinBotIDE.BlockEditor
     /// </summary>
     public static class BlockFactory
     {
-        // Colores por categoría (inspirado en Scratch)
-        private static readonly Dictionary<string, string> ColoresGrupo = new()
-        {
-            { "🚗 Movimiento", "#FF6600" },
-            { "👁️ Sensores",   "#2196F3" },
-            { "🔁 Control",    "#9C27B0" },
-            { "📡 Comunicación","#009688" },
-        };
-
         private static readonly Dictionary<TipoBloque, string> EtiquetasBloques = new()
         {
             { TipoBloque.MoverAdelante,      "▶ Mover adelante" },
@@ -69,9 +60,10 @@ namespace DinBotIDE.BlockEditor
         public static Button CrearBotonPaleta(TipoBloque tipo)
         {
             var color = ObtenerColorTipo(tipo);
+            var label = ObtenerEtiqueta(tipo);
             return new Button
             {
-                Content = EtiquetasBloques.TryGetValue(tipo, out var label) ? label : tipo.ToString(),
+                Content = label,
                 Tag = tipo,
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color)),
                 Foreground = Brushes.White,

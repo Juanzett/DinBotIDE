@@ -65,7 +65,7 @@
             </ToggleButton>
         </ToolBar>
 
-        <!-- ══ STATUS BAR INFERIOR ══ -->
+        <!-- ═╬ STATUS BAR INFERIOR ════════-->
         <StatusBar DockPanel.Dock="Bottom" Background="{StaticResource BrushPanel}" Height="28">
             <StatusBarItem>
                 <TextBlock x:Name="LblEstado" Text="Listo"
@@ -73,8 +73,13 @@
             </StatusBarItem>
             <Separator/>
             <StatusBarItem HorizontalAlignment="Right">
-                <TextBlock x:Name="LblPuerto" Text="Sin conexión"
-                           Foreground="Gray" FontSize="12"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="LblBloques" Text="Bloques: 0"
+                               Foreground="{StaticResource BrushTexto}" FontSize="12"
+                               Margin="0,0,16,0"/>
+                    <TextBlock x:Name="LblPuerto" Text="Sin conexión"
+                               Foreground="Gray" FontSize="12"/>
+                </StackPanel>
             </StatusBarItem>
         </StatusBar>
 

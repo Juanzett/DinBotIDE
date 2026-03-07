@@ -8,7 +8,7 @@
     <UseWPF>true</UseWPF>
     <AssemblyName>DinBotIDE</AssemblyName>
     <RootNamespace>DinBotIDE</RootNamespace>
-    <ApplicationIcon>Resources\dinbot.ico</ApplicationIcon>
+    <!-- <ApplicationIcon>Resources\dinbot.ico</ApplicationIcon> -->
     <Version>0.1.0</Version>
     <Authors>Juanzett</Authors>
     <Description>IDE de escritorio para programar el robot DinBot v2.4</Description>
@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.IO.Ports" Version="8.0.0" />
   </ItemGroup>
 
 </Project>

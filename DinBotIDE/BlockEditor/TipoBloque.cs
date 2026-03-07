@@ -13,17 +13,17 @@ namespace DinBotIDE.BlockEditor
         Detener,
 
         // ── Sensores / Condiciones ────────────────────────────────
-        SiCNY70Izq,
-        SiCNY70Der,
+        SiCNY70Izquierdo,
+        SiCNY70Derecho,
         SiChoque,
         SiLDR,
         SiMicrofono,
         SiIR,
 
         // ── Control de flujo ──────────────────────────────────────
-        RepetirN,
+        Repetir,
         RepetirSiempre,
-        SiSino,
+        Si,
         Esperar,
 
         // ── Comunicación ──────────────────────────────────────────

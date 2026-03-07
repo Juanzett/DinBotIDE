@@ -16,6 +16,12 @@ namespace DinBotIDE.BlockEditor
         private Point _offsetArrastre;
         private readonly StackPanel _panelParams;
 
+        /// <summary>
+        /// Se dispara cuando el usuario hace clic en el botón eliminar.
+        /// El suscriptor (BlockCanvas) debe encargarse de quitar el bloque.
+        /// </summary>
+        public event Action<BloqueVisual>? EliminacionSolicitada;
+
         public BloqueVisual(TipoBloque tipo)
         {
             Tipo = tipo;
@@ -59,7 +65,7 @@ namespace DinBotIDE.BlockEditor
                 Padding = new Thickness(4, 0, 0, 0),
                 VerticalAlignment = VerticalAlignment.Center
             };
-            btnEliminar.Click += (_, _) => ((Canvas)Parent)?.Children.Remove(this);
+            btnEliminar.Click += (_, _) => EliminacionSolicitada?.Invoke(this);
             DockPanel.SetDock(btnEliminar, Dock.Right);
             header.Children.Add(btnEliminar);
             header.Children.Add(titulo);
